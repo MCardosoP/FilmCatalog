@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/movie_controller.dart';
 import '../widgets/movie_card.dart';
+import 'add_movie_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,9 +36,14 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Ir para tela de cadastro")),
-          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AddMoviePage(controller: _controller),
+            ),
+          ).then((_) {
+            setState(() {}); // Atualiza a lista ao voltar
+          });
         },
         child: const Icon(Icons.add),
       ),

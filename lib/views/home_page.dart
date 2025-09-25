@@ -15,25 +15,35 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final movies = _controller.movies;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Catálogo de Filmes"),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: _controller.movies.length,
-        itemBuilder: (context, index) {
-          final movie = _controller.movies[index];
-          return MovieCard(
-            movie: movie,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Abrir detalhes de: ${movie.title}")),
+      body: movies.isEmpty
+          ? const Center(
+            child: Text(
+             "Nenhum filme cadastrado ainda.\nAdicione o primeiro!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          )
+          : ListView.builder(
+            itemCount: movies.length,
+            itemBuilder: (context, index) {
+              final movie = movies[index];
+              return MovieCard(
+                movie: movie,
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Abrir detalhes de: ${movie.title}")),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

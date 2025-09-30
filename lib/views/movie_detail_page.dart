@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
+import 'edit_movie_page.dart';
+import '../controllers/movie_controller.dart';
 
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
+  final MovieController controller;
+  final int index;
 
-  const MovieDetailPage({Key? key, required this.movie}) : super(key: key);
+  const MovieDetailPage({
+    Key? key,
+    required this.movie,
+    required this.controller,
+    required this.index,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +26,6 @@ class MovieDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título
             Text(
               movie.title,
               style: const TextStyle(
@@ -27,7 +35,6 @@ class MovieDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Gênero
             Row(
               children: [
                 const Icon(Icons.category, size: 20),
@@ -40,7 +47,6 @@ class MovieDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Ano
             Row(
               children: [
                 const Icon(Icons.date_range, size: 20),
@@ -53,13 +59,34 @@ class MovieDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Botão voltar
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text("Voltar"),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text("Voltar"),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            EditMoviePage(
+                              controller: controller,
+                              movieIndex: index,
+                              movie: movie,
+                            ),
+                      ),
+                    ).then((_) {
+                      Navigator.pop(context);
+                    });
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text("Editar"),
+                ),
+              ],
             ),
           ],
         ),

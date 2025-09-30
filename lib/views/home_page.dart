@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/movie_controller.dart';
 import '../widgets/movie_card.dart';
 import 'add_movie_page.dart';
+import 'movie_detail_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -37,8 +38,11 @@ class _HomePageState extends State<HomePage> {
               return MovieCard(
                 movie: movie,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Abrir detalhes de: ${movie.title}")),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MovieDetailPage(movie: movie),
+                    ),
                   );
                 },
               );

@@ -15,6 +15,15 @@ class MovieDetailPage extends StatelessWidget {
     required this.index,
   }) : super(key: key);
 
+  void _deleteMovie(BuildContext context) {
+    controller.deleteMovie(index);
+
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Filme '${movie.title}' removido.")),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +94,14 @@ class MovieDetailPage extends StatelessWidget {
                   },
                   icon: const Icon(Icons.edit),
                   label: const Text("Editar"),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  onPressed: () => _deleteMovie(context),
+                  icon: const Icon(Icons.delete),
+                  label: const Text("Excluir"),
                 ),
               ],
             ),

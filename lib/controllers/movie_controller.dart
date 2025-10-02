@@ -12,4 +12,10 @@ class MovieController {
       movies[index] = updatedMovie;
     }
   }
+
+  void deleteMovie(int index) {
+    if (index >= 0 && index < movies.length) {
+      movies.removeAt(index);
+    }
+  }
 }

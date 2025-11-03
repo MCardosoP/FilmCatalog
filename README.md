@@ -1,16 +1,34 @@
-# catalogo_filmes
+# Catálogo de Filmes
 
-A new Flutter project.
+Aplicativo mobile desenvolvido em Flutter, com o objetivo de implementar um catálogo de filmes, permitindo cadastrar, listar, editar e excluir (CRUD) filmes.
+A arquitetura utilizada foi o **MVC (Model-View-Controller)**.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Integrantes do Grupo
+- Matheus Cardoso Pinto
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Funcionalidades
+- Listar filmes cadastrados
+- Exibir detalhes de cada filme
+- Cadastrar novo filme
+- Editar informações de um filme
+- Excluir filme da lista
+- Feedback visual: SnackBars, mensagens de erro, etc.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## Como executar o projeto
+
+### Pré-requisitos
+- Flutter SDK instalado (https://docs.flutter.dev/get-started/install)
+- Emulador Android/iOS ou dispositivo físico conectado
+
+### Passos
+1. Clone este repositório (git clone https://github.com/MCardosoP/FilmCatalog.git)
+2. Acesse a pasta onde o clone está localizado
+3. Instale as dependências (flutter pub get)
+4. Execute o aplicativo (flutter run)
+5. Escolha o dispositivo onde o aplicativo deve ser executado

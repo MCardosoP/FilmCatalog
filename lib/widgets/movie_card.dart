@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
 
+/// Widget responsável por exibir as informações de um filme em forma de card.
 class MovieCard extends StatelessWidget {
   final Movie movie;
   final VoidCallback? onTap;
@@ -17,7 +18,7 @@ class MovieCard extends StatelessWidget {
         title: Text(movie.title,
           style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text("${movie.genre} • ${movie.year}"),
-        onTap: onTap,
+        onTap: onTap, // Navega para detalhes do filme
       ),
     );
   }

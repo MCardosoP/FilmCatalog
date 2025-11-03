@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
-import '../controllers/movie_controller.dart';
 
+/// Página para adicionar ou editar um filme.
+/// Recebe um callback [onSave] que será chamado com o Movie a ser salvo.
+/// Se [movieToEdit] for fornecido, o formulário será inicializado para edição.
 class AddMoviePage extends StatefulWidget {
-  final MovieController controller;
+  final Function(Movie) onSave;
+  final Movie? movieToEdit;
 
-  const AddMoviePage({Key? key, required this.controller}) : super(key: key);
+  const AddMoviePage({
+    Key? key,
+    required this.onSave,
+    this.movieToEdit,
+  }) : super(key: key);
 
   @override
-  State<AddMoviePage> createState() => _AddMoviePageState();
+  _AddMoviePageState createState() => _AddMoviePageState();
 }
 
 class _AddMoviePageState extends State<AddMoviePage> {
@@ -18,28 +25,53 @@ class _AddMoviePageState extends State<AddMoviePage> {
   final TextEditingController _genreController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
 
-  void _saveMovie() {
+  @override
+  void initState() {
+    super.initState();
+    // Se vier um movieToEdit, preenche os campos para edição
+    if (widget.movieToEdit != null) {
+      _titleController.text = widget.movieToEdit!.title;
+      _genreController.text = widget.movieToEdit!.genre;
+      _yearController.text = widget.movieToEdit!.year.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _genreController.dispose();
+    _yearController.dispose();
+    super.dispose();
+  }
+
+  /// Valida o formulário, cria o objeto Movie e chama o callback onSave.
+  /// Retorna ao screen anterior com resultado `true` para sinalizar alteração.
+  void _handleSave() {
     if (_formKey.currentState!.validate()) {
+      final int parsedYear = int.parse(_yearController.text);
+
       final newMovie = Movie(
-        title: _titleController.text,
-        genre: _genreController.text,
-        year: int.parse(_yearController.text),
+        title: _titleController.text.trim(),
+        genre: _genreController.text.trim(),
+        year: parsedYear,
       );
 
-      widget.controller.addMovie(newMovie);
+      // Chama o callback fornecido pela HomePage (ou controller)
+      widget.onSave(newMovie);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Filme adicionado com sucesso!")),
-      );
-
-      Navigator.pop(context); // Volta para a HomePage
+      // Retorna true para indicar que houve modificação
+      Navigator.pop(context, true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.movieToEdit != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Adicionar Filme")),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Editar Filme' : 'Adicionar Filme'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -50,12 +82,12 @@ class _AddMoviePageState extends State<AddMoviePage> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: "Título",
+                  labelText: 'Título',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "O título é obrigatório";
+                    return 'O título é obrigatório';
                   }
                   return null;
                 },
@@ -66,12 +98,12 @@ class _AddMoviePageState extends State<AddMoviePage> {
               TextFormField(
                 controller: _genreController,
                 decoration: const InputDecoration(
-                  labelText: "Gênero",
+                  labelText: 'Gênero',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "O gênero é obrigatório";
+                    return 'O gênero é obrigatório';
                   }
                   return null;
                 },
@@ -83,16 +115,16 @@ class _AddMoviePageState extends State<AddMoviePage> {
                 controller: _yearController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: "Ano de lançamento",
+                  labelText: 'Ano de lançamento',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "O ano é obrigatório";
+                  if (value == null || value.trim().isEmpty) {
+                    return 'O ano é obrigatório';
                   }
                   final year = int.tryParse(value);
                   if (year == null || year < 1900) {
-                    return "Digite um ano válido (>= 1900)";
+                    return 'Digite um ano válido (>= 1900)';
                   }
                   return null;
                 },
@@ -100,10 +132,9 @@ class _AddMoviePageState extends State<AddMoviePage> {
               const SizedBox(height: 24),
 
               // Botão Salvar
-              ElevatedButton.icon(
-                onPressed: _saveMovie,
-                icon: const Icon(Icons.save),
-                label: const Text("Salvar Filme"),
+              ElevatedButton(
+                onPressed: _handleSave,
+                child: Text(isEditing ? 'Salvar Alterações' : 'Salvar'),
               ),
             ],
           ),

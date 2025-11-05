@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'views/home_page.dart';
 import 'models/movie.dart';
+import 'models/user.dart';
+import 'views/login_page.dart';
 
-/// Ponto de entrada do aplicativo.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter(); // Inicializa o Hive
-  if (!Hive.isAdapterRegistered(0)) {
-    Hive.registerAdapter(MovieAdapter());
-  }
-  runApp(const MovieApp());
+  await Hive.initFlutter();
+
+  if (!Hive.isAdapterRegistered(0)) Hive.registerAdapter(MovieAdapter());
+  if (!Hive.isAdapterRegistered(1)) Hive.registerAdapter(UserAdapter());
+
+  runApp(const MyApp());
 }
 
-/// Widget raiz do aplicativo.
-class MovieApp extends StatelessWidget {
-  const MovieApp({Key? key}): super(key: key);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Catálogo de Filmes',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(), // Tela inicial do app
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      home: const LoginPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

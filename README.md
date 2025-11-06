@@ -38,10 +38,15 @@ A arquitetura utilizada foi o **MVC (Model-View-Controller)**, com integração 
 2. Acesse a pasta onde o clone está localizado
 3. Instale as dependências -> flutter pub get
 4. Gere os adapters Hive (se necessário) -> dart run build_runner build
+
+Em dispositivos móveis:
+
 5. Execute o aplicativo -> flutter run
 6. Escolha o dispositivo onde o aplicativo deve ser executado
 
----
+Na web:
 
-## Observações
-A persistência local (Hive) funciona completamente em dispositivos móveis e emuladores, porém os dados não são mantidos entre execuções do Flutter Web.
+5. Gere a build web -> flutter build web
+6. Vá até a pasta gerada -> cd build/web
+7. Rode o servidor local -> python -m http.server 8080
+8. Acesse no navegador -> http://localhost:8080

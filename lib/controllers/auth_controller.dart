@@ -50,4 +50,6 @@ class AuthController {
 
   // Usuário logado atualmente
   String? get currentUser => _sessionBox.get('currentUser');
+
+  bool get isLoggedIn => _sessionBox.containsKey('currentUser');
 }

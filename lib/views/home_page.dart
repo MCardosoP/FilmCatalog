@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../controllers/movie_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../models/movie.dart';
 import '../widgets/movie_card.dart';
 import 'add_movie_page.dart';
 import 'movie_detail_page.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,26 +16,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final MovieController _controller = MovieController();
+  final MovieController _movieController = MovieController();
+  final AuthController _authController = AuthController();
   bool _isLoading = true; // flag para aguardar o Hive abrir
 
   @override
   void initState() {
     super.initState();
-    _initHive();
+    _initialize();
   }
 
-  Future<void> _initHive() async {
-    await _controller.init();
-    setState(() {
-      _isLoading = false; // pronto para renderizar
-    });
+  Future<void> _initialize() async {
+    await _authController.init();
+
+    if (!_authController.isLoggedIn) {
+      if (mounted) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+        );
+      }
+      return;
+    }
+
+    await _movieController.init();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false; // pronto para renderizar
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _controller.closeBox();
-    super.dispose();
+  Future<void> _logout() async {
+    await _authController.logout();
+    if (mounted) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+      );
+    }
   }
 
   @override
@@ -45,11 +67,18 @@ class _HomePageState extends State<HomePage> {
     }
 
     final movieBox = Hive.box<Movie>('movies');
+    final currentUser = _authController.currentUser ?? 'Usuário';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Catálogo de Filmes"),
-        centerTitle: true,
+        title: Text("Catálogo de Filmes — $currentUser"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: _logout,
+          ),
+        ],
       ),
       body: ValueListenableBuilder(
         valueListenable: movieBox.listenable(),
@@ -78,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (_) => MovieDetailPage(
                         movie: movie,
-                        controller: _controller,
+                        controller: _movieController,
                         index: index,
                       ),
                     ),
@@ -96,14 +125,14 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (_) => AddMoviePage(
                 onSave: (newMovie) async {
-                  await _controller.addMovie(newMovie);
+                  await _movieController.addMovie(newMovie);
                 },
               ),
             ),
           );
 
           if (result == true) {
-            setState(() {}); // força rebuild ao voltar
+            setState(() {});
           }
         },
         child: const Icon(Icons.add),

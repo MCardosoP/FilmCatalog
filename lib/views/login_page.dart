@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final AuthController _authController = AuthController();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _loading = true);
     final error = await _authController.login(
-      _emailController.text.trim(),
+      _usernameController.text.trim(),
       _passwordController.text.trim(),
     );
 
@@ -55,7 +55,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
+      appBar: AppBar(
+        title: const Text("Login"),
+        automaticallyImplyLeading: false, // Remove o botão "Voltar"
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -63,10 +66,10 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             children: [
               TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: "E-mail"),
+                controller: _usernameController,
+                decoration: const InputDecoration(labelText: "Nome de usuário"),
                 validator: (v) =>
-                v == null || v.isEmpty ? "Digite seu e-mail" : null,
+                v == null || v.isEmpty ? "Digite seu nome de usuário" : null,
               ),
               const SizedBox(height: 16),
               TextFormField(

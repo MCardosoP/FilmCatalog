@@ -11,8 +11,9 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final AuthController _authController = AuthController();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _initialized = false;
 
@@ -30,10 +31,10 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!_initialized) return; // garante que o Hive foi iniciado
     if (!_formKey.currentState!.validate()) return;
 
-    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    final error = await _authController.register(email, password);
+    final error = await _authController.register(username, password);
 
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,19 +70,24 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 32),
 
-              // Campo E-mail
+              // Campo Nome de Usuário
               TextFormField(
-                controller: _emailController,
+                controller: _usernameController,
                 decoration: const InputDecoration(
-                  labelText: "E-mail",
+                  labelText: "Nome de usuário",
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                  hintText: "Mínimo 3 caracteres, sem espaços",
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Digite seu e-mail";
+                    return "Digite um nome de usuário";
                   }
-                  if (!value.contains('@')) {
-                    return "Digite um e-mail válido";
+                  if (value.length < 3) {
+                    return "Mínimo 3 caracteres";
+                  }
+                  if (value.contains(' ')) {
+                    return "Não pode conter espaços";
                   }
                   return null;
                 },
@@ -94,6 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 decoration: const InputDecoration(
                   labelText: "Senha",
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lock),
                 ),
                 obscureText: true,
                 validator: (value) {
@@ -102,6 +109,27 @@ class _RegisterPageState extends State<RegisterPage> {
                   }
                   if (value.length < 4) {
                     return "A senha deve ter pelo menos 4 caracteres";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Campo Confirmar Senha
+              TextFormField(
+                controller: _confirmPasswordController,
+                decoration: const InputDecoration(
+                  labelText: "Confirmar senha",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lock_outline),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Confirme sua senha";
+                  }
+                  if (value != _passwordController.text) {
+                    return "As senhas não coincidem";
                   }
                   return null;
                 },

@@ -17,30 +17,60 @@ class AuthController {
   }
 
   // Cadastro de novo usuário
-  Future<String?> register(String email, String password) async {
-    if (_userBox.values.any((u) => u.email == email)) {
-      return 'E-mail já cadastrado';
+  Future<String?> register(String username, String password) async {
+    // Validação: username não pode estar vazio
+    if (username.trim().isEmpty) {
+      return 'O nome de usuário não pode estar vazio';
+    }
+
+    // Validação: username deve ter pelo menos 3 caracteres
+    if (username.trim().length < 3) {
+      return 'O nome de usuário deve ter pelo menos 3 caracteres';
+    }
+
+    // Validação: username não pode conter espaços
+    if (username.contains(' ')) {
+      return 'O nome de usuário não pode conter espaços';
+    }
+
+    // Validação: senha deve ter pelo menos 4 caracteres
+    if (password.length < 4) {
+      return 'A senha deve ter pelo menos 4 caracteres';
+    }
+
+    // Verifica se já existe (case-insensitive)
+    if (_userBox.values.any((u) => u.username.toLowerCase() == username.toLowerCase())) {
+      return 'Nome de usuário já cadastrado';
     }
 
     final hashed = _hashPassword(password);
-    await _userBox.add(User(email: email, password: hashed));
+    await _userBox.add(User(username: username.toLowerCase(), password: hashed));
     return null; // null indica sucesso
   }
 
   // Login de usuário
-  Future<String?> login(String email, String password) async {
-    final hashed = _hashPassword(password);
-    final user = _userBox.values.firstWhere(
-          (u) => u.email == email && u.password == hashed,
-      orElse: () => User(email: '', password: ''),
-    );
-
-    if (user.email.isEmpty) {
-      return 'Credenciais inválidas';
+  Future<String?> login(String username, String password) async {
+    if (username.trim().isEmpty || password.trim().isEmpty) {
+      return 'Preencha todos os campos';
     }
 
-    await _sessionBox.put('currentUser', email);
-    return null;
+    final hashed = _hashPassword(password);
+
+    try {
+      final user = _userBox.values.firstWhere(
+            (u) => u.username.toLowerCase() == username.toLowerCase() && u.password == hashed,
+        orElse: () => User(username: '', password: ''),
+      );
+
+      if (user.username.isEmpty) {
+        return 'Credenciais inválidas';
+      }
+
+      await _sessionBox.put('currentUser', user.username);
+      return null;
+    } catch (e) {
+      return 'Erro ao fazer login: ${e.toString()}';
+    }
   }
 
   // Logout
@@ -48,7 +78,7 @@ class AuthController {
     await _sessionBox.delete('currentUser');
   }
 
-  // Usuário logado atualmente
+  // Usuário logado atualmente (username)
   String? get currentUser => _sessionBox.get('currentUser');
 
   bool get isLoggedIn => _sessionBox.containsKey('currentUser');

@@ -32,14 +32,16 @@ class _HomePageState extends State<HomePage> {
     if (!_authController.isLoggedIn) {
       if (mounted) {
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }
       return;
     }
 
-    await _movieController.init();
+    // Passa o userId para o MovieController
+    final userId = _authController.currentUser!;
+    await _movieController.init(userId);
 
     if (mounted) {
       setState(() {
@@ -52,8 +54,8 @@ class _HomePageState extends State<HomePage> {
     await _authController.logout();
     if (mounted) {
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
       );
     }
   }
@@ -72,6 +74,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Catálogo de Filmes — $currentUser"),
+        automaticallyImplyLeading: false, // Remove o botão "Voltar"
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -83,7 +86,8 @@ class _HomePageState extends State<HomePage> {
       body: ValueListenableBuilder(
         valueListenable: movieBox.listenable(),
         builder: (context, Box<Movie> box, _) {
-          final movies = box.values.toList();
+          // ✅ CORREÇÃO: Usa o getter do controller que filtra por usuário
+          final movies = _movieController.movies;
 
           if (movies.isEmpty) {
             return const Center(
@@ -109,6 +113,7 @@ class _HomePageState extends State<HomePage> {
                         movie: movie,
                         controller: _movieController,
                         index: index,
+                        userId: _authController.currentUser!, // Passa o userId
                       ),
                     ),
                   );
@@ -124,6 +129,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (_) => AddMoviePage(
+                userId: _authController.currentUser!, // Passa o userId
                 onSave: (newMovie) async {
                   await _movieController.addMovie(newMovie);
                 },

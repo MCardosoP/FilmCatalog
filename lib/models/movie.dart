@@ -51,67 +51,6 @@ class Movie extends HiveObject {
     this.tmdbId,
   }) : dateAdded = dateAdded ?? DateTime.now();
 
-  // Construtor factory para criar a partir de dados do TMDB
-  factory Movie.fromTMDB(Map<String, dynamic> json, String userId) {
-    return Movie(
-      title: json['title'] ?? 'Sem título',
-      genre: _extractGenres(json['genre_ids'] ?? []),
-      year: _extractYear(json['release_date']),
-      userId: userId, // Passa o userId
-      description: json['overview'] ?? 'Sem descrição disponível',
-      rating: (json['vote_average'] ?? 0.0).toDouble(),
-      posterUrl: json['poster_path'] != null
-          ? 'https://image.tmdb.org/t/p/w500${json['poster_path']}'
-          : null,
-      tmdbId: json['id'],
-    );
-  }
-
-  // Helper para extrair o ano da data de lançamento
-  static int _extractYear(String? releaseDate) {
-    if (releaseDate == null || releaseDate.isEmpty) return DateTime.now().year;
-    try {
-      return DateTime.parse(releaseDate).year;
-    } catch (e) {
-      return DateTime.now().year;
-    }
-  }
-
-  // Helper para converter IDs de gênero em texto (mapeamento básico do TMDB)
-  static String _extractGenres(List<dynamic> genreIds) {
-    const genreMap = {
-      28: 'Ação',
-      12: 'Aventura',
-      16: 'Animação',
-      35: 'Comédia',
-      80: 'Crime',
-      99: 'Documentário',
-      18: 'Drama',
-      10751: 'Família',
-      14: 'Fantasia',
-      36: 'História',
-      27: 'Terror',
-      10402: 'Música',
-      9648: 'Mistério',
-      10749: 'Romance',
-      878: 'Ficção Científica',
-      10770: 'TV',
-      53: 'Thriller',
-      10752: 'Guerra',
-      37: 'Faroeste',
-    };
-
-    if (genreIds.isEmpty) return 'Geral';
-
-    final genres = genreIds
-        .map((id) => genreMap[id])
-        .where((genre) => genre != null)
-        .take(2) // Pega até 2 gêneros
-        .join(', ');
-
-    return genres.isEmpty ? 'Geral' : genres;
-  }
-
   // Método para copiar com alterações
   Movie copyWith({
     String? title,

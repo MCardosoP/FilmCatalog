@@ -7,6 +7,7 @@ import '../widgets/movie_card.dart';
 import 'add_movie_page.dart';
 import 'movie_detail_page.dart';
 import 'login_page.dart';
+import 'search_movie_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,6 +77,21 @@ class _HomePageState extends State<HomePage> {
         title: Text("Catálogo de Filmes — $currentUser"),
         automaticallyImplyLeading: false, // Remove o botão "Voltar"
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            tooltip: 'Buscar no TMDB',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SearchMoviePage(
+                    controller: _movieController,
+                    userId: _authController.currentUser!,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sair',

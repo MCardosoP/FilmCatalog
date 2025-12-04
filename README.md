@@ -1,6 +1,7 @@
 # Catálogo de Filmes
-Aplicativo mobile desenvolvido em Flutter, com o objetivo de implementar um catálogo de filmes, permitindo cadastrar, listar, editar e excluir (CRUD) filmes.
+Aplicativo mobile desenvolvido em Flutter, com o objetivo de implementar um catálogo de filmes, permitindo cadastrar, listar, editar e excluir (CRUD) filmes. 
 A arquitetura utilizada foi o **MVC (Model-View-Controller)**, com integração de banco de dados local e autenticação de usuários via **Hive**.
+Foi utilizada a API do OMDb, que fornece informações sobre filmes, e o recurso nativo da câmera, que pode ser usada para alterar o banner de cada entrada de filme.
 
 ---
 
@@ -9,21 +10,31 @@ A arquitetura utilizada foi o **MVC (Model-View-Controller)**, com integração 
 
 ---
 
-## Funcionalidades
+## Funcionalidades do Projeto
 
-### Filmes
-- Listar filmes cadastrados
-- Exibir detalhes de cada filme
-- Cadastrar novo filme
-- Editar informações de um filme existente
-- Excluir filme da lista
+### Sistema de Autenticação
+- Cadastro de usuários com username e senha
+- Login com validação de credenciais
+- Logout
+- Senha criptografada (SHA-256)
+- Sessão persistente
+- Isolamento de dados por usuário
 
-### Usuários
-- Tela de login
-- Tela de cadastro
-- Armazenamento local de usuários
-- Criptografia de senha
-- Controle de sessão e logout 
+### Catálogo de Filmes
+- Adicionar filmes
+- Visualizar filmes
+- Detalhes do filme
+- Editar filmes
+- Deletar filmes
+
+### Busca de Filmes (API Externa)
+- Integração com OMDb API
+- Interface de busca
+
+### Recursos Nativos
+- Câmera
+- Armazenamento Local
+- Permissões
 
 ---
 

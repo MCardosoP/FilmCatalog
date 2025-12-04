@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/movie.dart';
+import '../services/image_service.dart';
 
 /// Página para adicionar ou editar um filme.
 /// Recebe um callback [onSave] que será chamado com o Movie a ser salvo.
@@ -22,6 +24,7 @@ class AddMoviePage extends StatefulWidget {
 
 class _AddMoviePageState extends State<AddMoviePage> {
   final _formKey = GlobalKey<FormState>();
+  final ImageService _imageService = ImageService();
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _genreController = TextEditingController();
@@ -32,6 +35,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
   double _rating = 0.0;
   bool _isWatched = false;
   bool _isFavorite = false;
+  String? _localPosterPath; // Caminho da foto tirada
 
   @override
   void initState() {
@@ -46,6 +50,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
       _rating = widget.movieToEdit!.rating;
       _isWatched = widget.movieToEdit!.isWatched;
       _isFavorite = widget.movieToEdit!.isFavorite;
+      _localPosterPath = widget.movieToEdit!.localPosterPath;
     }
   }
 
@@ -57,6 +62,56 @@ class _AddMoviePageState extends State<AddMoviePage> {
     _descriptionController.dispose();
     _posterUrlController.dispose();
     super.dispose();
+  }
+
+  /// Abre dialog para escolher entre câmera ou galeria
+  Future<void> _pickImage() async {
+    final source = await ImageService.showImageSourceDialog(context);
+
+    if (source == null) return;
+
+    try {
+      String? imagePath;
+
+      if (source == 'camera') {
+        imagePath = await _imageService.takePicture();
+      } else if (source == 'gallery') {
+        imagePath = await _imageService.pickFromGallery();
+      }
+
+      if (imagePath != null) {
+        setState(() {
+          _localPosterPath = imagePath;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Foto adicionada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao capturar imagem: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Remove a foto local
+  void _removeLocalPoster() {
+    setState(() {
+      _localPosterPath = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Foto removida'),
+      ),
+    );
   }
 
   /// Valida o formulário, cria o objeto Movie e chama o callback onSave.
@@ -79,6 +134,7 @@ class _AddMoviePageState extends State<AddMoviePage> {
         isFavorite: _isFavorite,
         dateAdded: widget.movieToEdit?.dateAdded, // Mantém a data original se for edição
         tmdbId: widget.movieToEdit?.tmdbId, // Mantém o ID do TMDB se existir
+        localPosterPath: _localPosterPath, // Adiciona foto local
       );
 
       // Chama o callback fornecido pela HomePage (ou controller)
@@ -119,6 +175,87 @@ class _AddMoviePageState extends State<AddMoviePage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Preview da foto local ou poster
+              if (_localPosterPath != null || _posterUrlController.text.isNotEmpty)
+                Card(
+                  elevation: 2,
+                  child: Column(
+                    children: [
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: _localPosterPath != null
+                                ? Image.file(
+                              File(_localPosterPath!),
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                                : Image.network(
+                              _posterUrlController.text,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 200,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.error, size: 64),
+                                );
+                              },
+                            ),
+                          ),
+                          if (_localPosterPath != null)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  onPressed: _removeLocalPoster,
+                                  tooltip: 'Remover foto',
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          _localPosterPath != null
+                              ? 'Foto capturada'
+                              : 'Poster da internet',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+
+              // Botão de Câmera
+              OutlinedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.camera_alt),
+                label: Text(
+                  _localPosterPath != null
+                      ? 'Alterar Foto'
+                      : 'Tirar Foto do Poster',
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+              ),
+              const SizedBox(height: 24),
 
               // Campo Gênero
               TextFormField(

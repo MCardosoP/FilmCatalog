@@ -28,13 +28,14 @@ class MovieAdapter extends TypeAdapter<Movie> {
       isFavorite: fields[7] as bool,
       dateAdded: fields[8] as DateTime?,
       tmdbId: fields[9] as int?,
+      localPosterPath: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Movie obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class MovieAdapter extends TypeAdapter<Movie> {
       ..writeByte(9)
       ..write(obj.tmdbId)
       ..writeByte(10)
-      ..write(obj.userId);
+      ..write(obj.userId)
+      ..writeByte(11)
+      ..write(obj.localPosterPath);
   }
 
   @override

@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+    <string>Este app precisa acessar a câmera para tirar fotos dos posters dos filmes</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Este app precisa acessar a galeria para escolher fotos dos posters</string>
 </dict>
 </plist>

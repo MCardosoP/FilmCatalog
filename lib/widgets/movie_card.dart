@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/movie.dart';
 
 /// Widget responsável por exibir as informações de um filme em forma de card.
@@ -184,7 +185,15 @@ class MovieCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey[300],
       ),
-      child: movie.posterUrl != null
+      child: movie.hasLocalPoster
+          ? Image.file(
+        File(movie.localPosterPath!),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholderPoster();
+        },
+      )
+          : movie.posterUrl != null
           ? Image.network(
         movie.posterUrl!,
         fit: BoxFit.cover,

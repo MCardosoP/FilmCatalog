@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../models/movie.dart';
 import 'add_movie_page.dart';
 import '../controllers/movie_controller.dart';
+import '../services/image_service.dart';
 import 'package:intl/intl.dart';
 
 class MovieDetailPage extends StatefulWidget {
@@ -24,6 +26,7 @@ class MovieDetailPage extends StatefulWidget {
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
   late Movie _currentMovie;
+  final ImageService _imageService = ImageService();
 
   @override
   void initState() {
@@ -71,6 +74,55 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     setState(() {
       _currentMovie = widget.controller.movies[widget.index];
     });
+  }
+
+  Future<void> _addOrChangePoster() async {
+    final source = await ImageService.showImageSourceDialog(context);
+
+    if (source == null) return;
+
+    try {
+      String? imagePath;
+
+      if (source == 'camera') {
+        imagePath = await _imageService.takePicture();
+      } else if (source == 'gallery') {
+        imagePath = await _imageService.pickFromGallery();
+      }
+
+      if (imagePath != null) {
+        // Atualiza o filme com a nova foto
+        final updatedMovie = _currentMovie.copyWith(
+          localPosterPath: imagePath,
+        );
+
+        final error = await widget.controller.updateMovie(widget.index, updatedMovie);
+
+        if (error == null) {
+          setState(() {
+            _currentMovie = updatedMovie;
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Foto atualizada com sucesso!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao capturar imagem: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _editMovie() {
@@ -125,11 +177,26 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   ],
                 ),
               ),
-              background: _currentMovie.posterUrl != null
+              background: _currentMovie.displayPosterPath != null
                   ? Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
+                  _currentMovie.hasLocalPoster
+                      ? Image.file(
+                    File(_currentMovie.localPosterPath!),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.movie,
+                          size: 100,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
+                  )
+                      : Image.network(
                     _currentMovie.posterUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -167,6 +234,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt),
+                onPressed: _addOrChangePoster,
+                tooltip: _currentMovie.hasLocalPoster ? 'Alterar Foto' : 'Tirar Foto',
+              ),
               IconButton(
                 icon: Icon(
                   _currentMovie.isFavorite ? Icons.favorite : Icons.favorite_border,

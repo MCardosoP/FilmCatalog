@@ -37,6 +37,9 @@ class Movie extends HiveObject {
   @HiveField(10)
   String userId; // Email do usuário que criou o filme
 
+  @HiveField(11)
+  String? localPosterPath; // Caminho local da foto tirada pelo usuário
+
   Movie({
     required this.title,
     required this.genre,
@@ -49,6 +52,7 @@ class Movie extends HiveObject {
     this.isFavorite = false,
     DateTime? dateAdded,
     this.tmdbId,
+    this.localPosterPath, // Foto local
   }) : dateAdded = dateAdded ?? DateTime.now();
 
   // Método para copiar com alterações
@@ -64,6 +68,7 @@ class Movie extends HiveObject {
     bool? isFavorite,
     DateTime? dateAdded,
     int? tmdbId,
+    String? localPosterPath,
   }) {
     return Movie(
       title: title ?? this.title,
@@ -77,6 +82,7 @@ class Movie extends HiveObject {
       isFavorite: isFavorite ?? this.isFavorite,
       dateAdded: dateAdded ?? this.dateAdded,
       tmdbId: tmdbId ?? this.tmdbId,
+      localPosterPath: localPosterPath ?? this.localPosterPath,
     );
   }
 
@@ -85,4 +91,10 @@ class Movie extends HiveObject {
 
   // Getter para ano como string
   String get yearString => year.toString();
+
+  // Getter para determinar qual poster usar (prioriza foto local)
+  String? get displayPosterPath => localPosterPath ?? posterUrl;
+
+  // Getter para verificar se tem foto local
+  bool get hasLocalPoster => localPosterPath != null && localPosterPath!.isNotEmpty;
 }
